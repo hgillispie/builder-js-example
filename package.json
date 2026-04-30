@@ -1,35 +1,14 @@
 {
-  "name": "@builder.io/example-plain-js",
+  "name": "dealmaker-builder-starter",
   "private": true,
   "version": "1.0.0",
-  "description": "Builder.io example with plain JS — Dealmaker branded",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/builderio/builder.git"
-  },
-  "keywords": [
-    "builder.io",
-    "javascript",
-    "vanilla",
-    "client",
-    "sdk"
-  ],
-  "author": "Steve Sewell",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/builderio/builder/issues"
-  },
-  "homepage": "https://github.com/builderio/builder#readme",
-  "main": "index.html",
+  "description": "DealMaker — Builder.io plain-JS starter",
   "scripts": {
-    "start": "parcel index.html --open",
-    "build": "parcel build index.html"
-  },
-  "dependencies": {
-    "@builder.io/sdk": "^2.2.7"
+    "start": "vite --port 1234 --open",
+    "build": "vite build",
+    "preview": "vite preview --port 1234"
   },
   "devDependencies": {
-    "@babel/core": "7.2.0",
-    "parcel-bundler": "^1.6.1"
+    "vite": "^6.4.0"
   }
 }

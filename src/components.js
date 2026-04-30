@@ -1,20 +1,17 @@
 // Dealmaker-branded custom components.
 //
-// Each component has:
-//   - a `name` (what appears in the Builder visual editor)
-//   - `inputs` describing its editable fields
-//   - a `render(props)` that returns an HTML string
+// Each entry is a plain object describing one component:
+//   - name        — what appears in the Builder editor
+//   - tag         — the custom HTML element used to render it on the page
+//   - inputs      — Builder editor input schema
+//   - render(props) — returns an HTML string from the input values
 //
-// We register the metadata (name + inputs) with the Builder SDK so the
-// components show up in the Builder editor's "Add block" menu. We keep
-// the render function in a local registry so our plain-JS renderer
-// (see renderer.js) can turn a Builder block into real DOM.
+// This file has zero Builder dependency — it's pure data + render
+// functions. The bootstrap in `src/index.js` is what actually
+// registers these with Builder's web-component SDK and defines the
+// custom HTML elements that wrap each render function.
 //
-// To add a new component: copy one of the register(...) calls below,
-// change the name/inputs, and write a render function that returns
-// an HTML string from the props.
-
-import { Builder } from '@builder.io/sdk';
+// To add a new component: add an object to the `components` array.
 
 const escapeHtml = (str = '') =>
   String(str).replace(/[&<>"']/g, c => ({
@@ -48,33 +45,20 @@ const ICONS = {
   ),
 };
 
-export const componentRegistry = {};
-
-function register(options, render) {
-  componentRegistry[options.name] = { options, render };
-  // Register metadata with Builder so the component shows up in the
-  // visual editor. Passing a lightweight marker function is enough —
-  // the editor only needs the name + inputs to drive its UI.
-  Builder.registerComponent(function noop() {}, options);
-}
-
-// ─────────────────────────────────────────────────────────────────────
-// <DealHero> — branded hero with gradient accent headline + two CTAs.
-// Demonstrates: string, longText, url inputs.
-// ─────────────────────────────────────────────────────────────────────
-register(
+export const components = [
+  // ───────────────────────────────────────────────────────────────────
+  // <DealHero> — branded hero with gradient accent headline + two CTAs.
+  // Demonstrates: string, longText, url inputs.
+  // ───────────────────────────────────────────────────────────────────
   {
     name: 'DealHero',
+    tag: 'dm-deal-hero',
     friendlyName: 'Deal Hero',
     description: 'Large branded hero with gradient headline + CTAs.',
     image: ICONS.DealHero,
     inputs: [
       { name: 'eyebrow', type: 'string', defaultValue: 'New on DealMaker' },
-      {
-        name: 'title',
-        type: 'string',
-        defaultValue: 'Online capital raising,',
-      },
+      { name: 'title', type: 'string', defaultValue: 'Online capital raising,' },
       {
         name: 'accentTitle',
         type: 'string',
@@ -93,46 +77,45 @@ register(
       { name: 'secondaryCtaText', type: 'string', defaultValue: 'See offerings' },
       { name: 'secondaryCtaHref', type: 'url', defaultValue: '/offerings' },
     ],
-  },
-  props => `
-    <section class="dm-hero">
-      <div class="dm-hero-inner">
-        ${props.eyebrow
-          ? `<span class="dm-eyebrow">${escapeHtml(props.eyebrow)}</span>`
-          : ''}
-        <h1 class="dm-hero-title">
-          ${escapeHtml(props.title || '')}
-          ${props.accentTitle
-            ? `<span class="accent">${escapeHtml(props.accentTitle)}</span>`
+    render: props => `
+      <section class="dm-hero">
+        <div class="dm-hero-inner">
+          ${props.eyebrow
+            ? `<span class="dm-eyebrow">${escapeHtml(props.eyebrow)}</span>`
             : ''}
-        </h1>
-        <p class="dm-hero-sub">${escapeHtml(props.subtitle || '')}</p>
-        <div class="dm-hero-actions">
-          ${props.primaryCtaText
-            ? `<a class="btn btn-accent" href="${escapeHtml(
-                props.primaryCtaHref || '#'
-              )}">${escapeHtml(props.primaryCtaText)}</a>`
-            : ''}
-          ${props.secondaryCtaText
-            ? `<a class="btn btn-outline" href="${escapeHtml(
-                props.secondaryCtaHref || '#'
-              )}">${escapeHtml(props.secondaryCtaText)}</a>`
-            : ''}
+          <h1 class="dm-hero-title">
+            ${escapeHtml(props.title || '')}
+            ${props.accentTitle
+              ? `<span class="accent">${escapeHtml(props.accentTitle)}</span>`
+              : ''}
+          </h1>
+          <p class="dm-hero-sub">${escapeHtml(props.subtitle || '')}</p>
+          <div class="dm-hero-actions">
+            ${props.primaryCtaText
+              ? `<a class="btn btn-accent" href="${escapeHtml(
+                  props.primaryCtaHref || '#'
+                )}">${escapeHtml(props.primaryCtaText)}</a>`
+              : ''}
+            ${props.secondaryCtaText
+              ? `<a class="btn btn-outline" href="${escapeHtml(
+                  props.secondaryCtaHref || '#'
+                )}">${escapeHtml(props.secondaryCtaText)}</a>`
+              : ''}
+          </div>
         </div>
-      </div>
-    </section>
-  `
-);
+      </section>
+    `,
+  },
 
-// ─────────────────────────────────────────────────────────────────────
-// <FeatureGrid> — section heading + responsive grid of feature tiles.
-// Demonstrates: `list` input with `subFields` (the most important
-// Builder pattern — lets editors add/remove/reorder repeated items
-// without leaving the visual editor) and an `enum` for column count.
-// ─────────────────────────────────────────────────────────────────────
-register(
+  // ───────────────────────────────────────────────────────────────────
+  // <FeatureGrid> — section heading + responsive grid of feature tiles.
+  // Demonstrates: `list` input with `subFields` (the most important
+  // Builder pattern — lets editors add/remove/reorder repeated items
+  // without leaving the visual editor) and an `enum` for column count.
+  // ───────────────────────────────────────────────────────────────────
   {
     name: 'FeatureGrid',
+    tag: 'dm-feature-grid',
     friendlyName: 'Feature Grid',
     description: 'Responsive grid that lays out feature cards in 2–4 columns.',
     image: ICONS.FeatureGrid,
@@ -177,47 +160,46 @@ register(
         ],
       },
     ],
+    render: props => {
+      const cols = [2, 3, 4].includes(Number(props.columns))
+        ? Number(props.columns)
+        : 3;
+      const items = Array.isArray(props.features) ? props.features : [];
+      return `
+        <section class="dm-features">
+          <div class="dm-section-head">
+            ${props.eyebrow
+              ? `<span class="dm-eyebrow">${escapeHtml(props.eyebrow)}</span>`
+              : ''}
+            <h2>${escapeHtml(props.heading || '')}</h2>
+            ${props.subheading
+              ? `<p>${escapeHtml(props.subheading)}</p>`
+              : ''}
+          </div>
+          <div class="dm-features-grid" style="--dm-cols:${cols}">
+            ${items
+              .map(
+                f => `
+              <div class="dm-feature">
+                <div class="dm-feature-icon">${escapeHtml(f.icon || '')}</div>
+                <h3 class="dm-feature-title">${escapeHtml(f.title || '')}</h3>
+                <p class="dm-feature-body">${escapeHtml(f.body || '')}</p>
+              </div>`
+              )
+              .join('')}
+          </div>
+        </section>
+      `;
+    },
   },
-  props => {
-    const cols = [2, 3, 4].includes(Number(props.columns))
-      ? Number(props.columns)
-      : 3;
-    const items = Array.isArray(props.features) ? props.features : [];
-    return `
-      <section class="dm-features">
-        <div class="dm-section-head">
-          ${props.eyebrow
-            ? `<span class="dm-eyebrow">${escapeHtml(props.eyebrow)}</span>`
-            : ''}
-          <h2>${escapeHtml(props.heading || '')}</h2>
-          ${props.subheading
-            ? `<p>${escapeHtml(props.subheading)}</p>`
-            : ''}
-        </div>
-        <div class="dm-features-grid" style="--dm-cols:${cols}">
-          ${items
-            .map(
-              f => `
-            <div class="dm-feature">
-              <div class="dm-feature-icon">${escapeHtml(f.icon || '')}</div>
-              <h3 class="dm-feature-title">${escapeHtml(f.title || '')}</h3>
-              <p class="dm-feature-body">${escapeHtml(f.body || '')}</p>
-            </div>`
-            )
-            .join('')}
-        </div>
-      </section>
-    `;
-  }
-);
 
-// ─────────────────────────────────────────────────────────────────────
-// <TwoColumnFeature> — image on one side, copy + CTA on the other.
-// Demonstrates: `file` input (image upload) and `enum` for layout choice.
-// ─────────────────────────────────────────────────────────────────────
-register(
+  // ───────────────────────────────────────────────────────────────────
+  // <TwoColumnFeature> — image on one side, copy + CTA on the other.
+  // Demonstrates: `file` input (image upload) and `enum` for layout choice.
+  // ───────────────────────────────────────────────────────────────────
   {
     name: 'TwoColumnFeature',
+    tag: 'dm-two-column-feature',
     friendlyName: 'Two-Column Feature',
     description: 'Side-by-side media and copy with optional CTA.',
     image: ICONS.TwoColumnFeature,
@@ -250,42 +232,39 @@ register(
       { name: 'ctaText', type: 'string', defaultValue: 'Learn more' },
       { name: 'ctaHref', type: 'url', defaultValue: '#' },
     ],
+    render: props => {
+      const reverse = props.mediaSide === 'left';
+      const media = props.image
+        ? `<img class="dm-twocol-img" src="${escapeHtml(props.image)}" alt="" />`
+        : '<div class="dm-twocol-img dm-twocol-img--placeholder"></div>';
+      const copy = `
+        <div class="dm-twocol-copy">
+          ${props.eyebrow
+            ? `<span class="dm-eyebrow">${escapeHtml(props.eyebrow)}</span>`
+            : ''}
+          <h2>${escapeHtml(props.title || '')}</h2>
+          <p>${escapeHtml(props.body || '')}</p>
+          ${props.ctaText
+            ? `<a class="btn btn-primary" href="${escapeHtml(
+                props.ctaHref || '#'
+              )}">${escapeHtml(props.ctaText)}</a>`
+            : ''}
+        </div>
+      `;
+      return `
+        <section class="dm-twocol${reverse ? ' dm-twocol--reverse' : ''}">
+          ${reverse ? media + copy : copy + media}
+        </section>
+      `;
+    },
   },
-  props => {
-    const reverse = props.mediaSide === 'left';
-    const media = props.image
-      ? `<img class="dm-twocol-img" src="${escapeHtml(props.image)}" alt="" />`
-      : '<div class="dm-twocol-img dm-twocol-img--placeholder"></div>';
-    const copy = `
-      <div class="dm-twocol-copy">
-        ${props.eyebrow
-          ? `<span class="dm-eyebrow">${escapeHtml(props.eyebrow)}</span>`
-          : ''}
-        <h2>${escapeHtml(props.title || '')}</h2>
-        <p>${escapeHtml(props.body || '')}</p>
-        ${props.ctaText
-          ? `<a class="btn btn-primary" href="${escapeHtml(
-              props.ctaHref || '#'
-            )}">${escapeHtml(props.ctaText)}</a>`
-          : ''}
-      </div>
-    `;
-    return `
-      <section class="dm-twocol${reverse ? ' dm-twocol--reverse' : ''}">
-        ${reverse ? media + copy : copy + media}
-      </section>
-    `;
-  }
-);
 
-// ─────────────────────────────────────────────────────────────────────
-// <CTABanner> — dark full-width call-to-action.
-// Demonstrates: composing the same simple input types as the hero
-// into a different layout — useful as a page closer.
-// ─────────────────────────────────────────────────────────────────────
-register(
+  // ───────────────────────────────────────────────────────────────────
+  // <CTABanner> — dark full-width call-to-action.
+  // ───────────────────────────────────────────────────────────────────
   {
     name: 'CTABanner',
+    tag: 'dm-cta-banner',
     friendlyName: 'CTA Banner',
     description: 'Dark, full-width call-to-action banner.',
     image: ICONS.CTABanner,
@@ -310,25 +289,25 @@ register(
       },
       { name: 'secondaryCtaHref', type: 'url', defaultValue: '/case-studies' },
     ],
+    render: props => `
+      <section class="dm-cta">
+        <div class="dm-cta-copy">
+          <h3>${escapeHtml(props.heading || '')}</h3>
+          <p>${escapeHtml(props.body || '')}</p>
+        </div>
+        <div class="dm-cta-actions">
+          ${props.primaryCtaText
+            ? `<a class="btn btn-accent" href="${escapeHtml(
+                props.primaryCtaHref || '#'
+              )}">${escapeHtml(props.primaryCtaText)}</a>`
+            : ''}
+          ${props.secondaryCtaText
+            ? `<a class="btn btn-outline" style="color:#fff;border-color:rgba(255,255,255,0.25)" href="${escapeHtml(
+                props.secondaryCtaHref || '#'
+              )}">${escapeHtml(props.secondaryCtaText)}</a>`
+            : ''}
+        </div>
+      </section>
+    `,
   },
-  props => `
-    <section class="dm-cta">
-      <div class="dm-cta-copy">
-        <h3>${escapeHtml(props.heading || '')}</h3>
-        <p>${escapeHtml(props.body || '')}</p>
-      </div>
-      <div class="dm-cta-actions">
-        ${props.primaryCtaText
-          ? `<a class="btn btn-accent" href="${escapeHtml(
-              props.primaryCtaHref || '#'
-            )}">${escapeHtml(props.primaryCtaText)}</a>`
-          : ''}
-        ${props.secondaryCtaText
-          ? `<a class="btn btn-outline" style="color:#fff;border-color:rgba(255,255,255,0.25)" href="${escapeHtml(
-              props.secondaryCtaHref || '#'
-            )}">${escapeHtml(props.secondaryCtaText)}</a>`
-          : ''}
-      </div>
-    </section>
-  `
-);
+];

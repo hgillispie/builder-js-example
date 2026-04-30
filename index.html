@@ -1,43 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>DealMaker — Online Capital Raising, Reimagined</title>
+    <title>DealMaker — Builder Test</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link
-      rel="preconnect"
-      href="https://fonts.googleapis.com"
-    />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
   </head>
-
   <body>
-    <header class="site-header">
-      <a href="/" class="logo">
-        <span class="logo-mark">▲</span>
-        <span class="logo-word">Deal<strong>Maker</strong></span>
-      </a>
-      <nav class="links">
-        <a class="link" href="/">Home</a>
-        <a class="link" href="/platform">Platform</a>
-        <a class="link" href="/offerings">Offerings</a>
-        <a class="link" href="/about">About</a>
-      </nav>
-      <a class="btn btn-primary btn-sm" href="/book-demo">Book a demo</a>
-    </header>
+    <builder-component
+      model="page"
+      api-key="830f2ea53ad547e9a848a1be9006b414"
+      reload-on-route>
+    </builder-component>
 
-    <main id="app">
-      <div class="loading">Loading…</div>
-    </main>
-
-    <footer class="site-footer">
-      <div>© DealMaker Technologies — Built with Builder.io</div>
-    </footer>
-
-    <script src="src/index.js"></script>
+    <!--
+      Both scripts may run in either order; src/index.js uses a
+      defensive `push` to window.builderWcLoadCallbacks so it works
+      whether it loads before or after the Builder CDN script.
+    -->
+    <script type="module" src="/src/index.js"></script>
+    <script async src="https://cdn.builder.io/js/webcomponents"></script>
   </body>
 </html>
